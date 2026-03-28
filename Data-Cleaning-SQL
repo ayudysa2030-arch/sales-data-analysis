@@ -1,0 +1,101 @@
+# EXPLORE DATA AND UNDERSTAND COLUMNS FOR ANSWER QUESTIONS BEFORE CLEANING 
+
+SELECT *
+FROM retaildata-491202.retail.data
+
+
+
+
+
+#REMOVE THE DUPLICATED AND EMPTY FOR ESSENTIAL COLUMNS FOR ANSWER 
+
+CREATE TABLE `retaildata-491202.retail.data_cleaned` AS
+SELECT DISTINCT *
+FROM `retaildata-491202.retail.data`
+WHERE Customer_ID IS NOT NULL
+  AND Total_Amount IS NOT NULL
+  AND Product_Category IS NOT NULL
+  AND Country IS NOT NULL
+  AND Date IS NOT NULL
+  AND City IS NOT NULL
+  AND State IS NOT NULL
+  AND Order_Status IS NOT NULL
+  AND Age IS NOT NULL;
+
+
+
+# REMOVE THE OUTLIER IF WE HAVE AGE GREATER THAN 100 YEARS 
+
+CREATE TABLE `retaildata-491202.retail.data_age_cleaned` AS
+SELECT *
+FROM `retaildata-491202.retail.data_cleaned`
+WHERE Age >= 1 AND Age <= 99;
+
+
+# FOR CHAKE IF WE HAVE NAN OR UKNUNE IN ROW DO THIS BECASE I NEED TO (MALE, FEMALE) 
+
+SELECT Gender, COUNT(*) AS Count
+FROM `retaildata-491202.retail.data_age_cleaned`
+GROUP BY Gender;
+
+
+
+
+# AFTER REMOVE THE IMPORTANTE COLOMNS FROM EMPTY THE Gender HAS EMPTY I WAS REMOVE EMPTY BECAUSE NEED IN SLICER 
+
+CREATE TABLE `retaildata-491202.retail.data_gender_cleaned` AS
+SELECT *
+FROM `retaildata-491202.retail.data_age_cleaned`
+WHERE Gender IS NOT NULL;
+
+
+
+
+# FOR CHAKE IF WE HAVE NAN OR UKNUNE IN ROW DO THIS BECASE I NEED TO (MEDIUME, HIGH, LOW) 
+
+SELECT Income, COUNT(*) AS Count
+FROM `retaildata-491202.retail.data_gender_cleaned`
+GROUP BY Income
+ORDER BY Count DESC;
+
+
+
+
+# AFTER REMOVE THE IMPORTANTE COLUMNS FROM EMPTY THE INCOME HAS EMPTY I WAS REMOVE EMPTY BECAUSE NEED IN SLICER 
+
+CREATE TABLE `retaildata-491202.retail.data_income_cleaned` AS
+SELECT *
+FROM `retaildata-491202.retail.data_gender_cleaned`
+WHERE Income IS NOT NULL;
+
+
+# USE THE TRIM FOR REMOVE THE SPACE 
+
+SELECT 
+    TRIM(Gender) AS Gender_Cleaned,
+    TRIM(Income) AS Income_Cleaned,
+    TRIM(Product_Category) AS Product_Category_Cleaned,
+    TRIM(Country) AS Country_Cleaned,
+    *
+FROM `retaildata-491202.retail.data_income_cleaned`;
+
+
+
+
+
+# AFTER FINISH FROM CLEANING GIT SAMPLE FROM DATA BECAUSE BIG DATA TAKE 30K ROW FROM 531K ROW
+
+CREATE TABLE `retaildata-491202.retail.data_final` AS
+SELECT *
+FROM `retaildata-491202.retail.data_income_cleaned`
+ORDER BY RAND()
+LIMIT 30000;
+
+
+
+
+
+# FINAL SHACKE ABOUT DATA AFTER CLEANING
+
+SELECT *
+FROM retaildata-491202.retail.data_final
